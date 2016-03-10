@@ -17,14 +17,14 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run  
 在命令行执行  
 ```
-php composer.phar require --dev --prefer-dist buptlsp/yii2-curl
+php composer.phar require --prefer-dist buptlsp/yii2-curl "*"
 ```
 
 or add   
 或加入
 
 ```
-"buptlsp/yii2-gii": "~2.0.0"
+"buptlsp/yii2-curl": "*"
 ```
 
 to the require-dev section of your `composer.json` file.  
@@ -38,7 +38,7 @@ Once the extension is installed, simply modify your application configuration as
 
 ```php
 return [
-    'curl' => [
+    'baiduApi' => [
         'host' => 'www.baidu.com',
         'beforeRequest' => function($ch, $req) {
             //Yii::info("begin Bequest");
@@ -54,5 +54,17 @@ return [
     ],
     // ...
 ];
+```
+
+After that, you can use it as follow:  
+在配置好之后，你可以这么访问它：
+```php
+$result = Yii::$app->baiduApi->httpExec('/', ['q' => "test"]);
+$result = Yii::$app->baiduApi->setPost()->httpExec('/', ['q' => "test"]);
+$result = Yii::$app->baiduApi->setPostJson()->httpExec('/', ['q' => "test"]);
+//you can also do more things:
+$result = Yii::$app->baiduApi->setPost()
+          ->setHeader('Accept-Charset', 'GBK,utf-8')
+          ->httpExec("/test", ['arg'=>'value']);
 ```
 
