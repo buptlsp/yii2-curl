@@ -1,0 +1,23 @@
+{
+    "name": "lishipeng/yii2-curl",
+    "description": "A curl encapsulation for yii2 framework",
+    "keywords": ["yii2", "extension", "curl"],
+    "homepage": "https://github.com/buptlsp/yii2-curl",
+    "type": "yii2-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "李仕鹏",
+            "email": "lspbupt@sina.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "yiisoft/yii2": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "buptlsp\\yii2-curl\\": ""
+        }
+    }
+}
