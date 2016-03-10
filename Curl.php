@@ -99,6 +99,9 @@ class CurlHttp extends Component
     {
         $url = $this->getUrl().$action;
         $ch = curl_init();
+        if($this->beforeRequest instanceof Closure) {
+            call_user_func($this->beforeRequest, $ch, $this);
+        }
         if ($this->method == self::METHOD_POST) {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
@@ -113,9 +116,6 @@ class CurlHttp extends Component
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER , $this->getHeads());
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        if($this->beforeRequest instanceof Closure) {
-            call_user_func($this->beforeRequest, $ch, $this);
-        }
         $output = curl_exec($ch);
         if($this->afterRequest instanceof Closure) {
             call_user_func($this->afterRequest, $ch, $output);
