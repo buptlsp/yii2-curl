@@ -11,9 +11,6 @@
             "email": "lspbupt@sina.com"
         }
     ],
-    "minimum-stability" : "dev",
-    "require": {
-    },
     "autoload": {
         "psr-4": {
             "lishipeng\\yii2-curl\\": ""
