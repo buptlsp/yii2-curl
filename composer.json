@@ -11,8 +11,10 @@
             "email": "lspbupt@sina.com"
         }
     ],
+    "minimum-stability" : "dev",
     "require": {
-        "yiisoft/yii2": "*"
+        "yiisoft/yii2": "*",
+        "lishipeng/yii2-curl": "*"
     },
     "autoload": {
         "psr-4": {
