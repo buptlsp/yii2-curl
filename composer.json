@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "buptlsp\\yii2-curl\\": ""
+            "lishipeng\\yii2-curl\\": ""
         }
     }
 }
