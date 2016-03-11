@@ -1,5 +1,5 @@
 {
-    "name": "lishipeng/yii2-curl",
+    "name": "lspbupt/yii2-curl",
     "description": "A curl encapsulation for yii2 framework",
     "keywords": ["yii2", "extension", "curl"],
     "homepage": "https://github.com/buptlsp/yii2-curl",
@@ -13,7 +13,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "lishipeng\\yii2-curl\\": ""
+            "lspbupt\\yii2-curl\\": ""
         }
     }
 }
