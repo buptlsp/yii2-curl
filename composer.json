@@ -13,8 +13,7 @@
     ],
     "minimum-stability" : "dev",
     "require": {
-        "yiisoft/yii2": "*",
-        "lishipeng/yii2-curl": "*"
+        "yiisoft/yii2": "*"
     },
     "autoload": {
         "psr-4": {
