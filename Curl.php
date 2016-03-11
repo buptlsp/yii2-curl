@@ -26,6 +26,8 @@ class CurlHttp extends Component
     public $beforeRequest;
     public $afterRequest;
 
+    private $_curl;
+
     public function init()
     {
         parent::init();
@@ -94,14 +96,22 @@ class CurlHttp extends Component
         return $heads;
     }
 
+    public function getCurl()
+    {
+        if($this->_curl) {
+            return $this->_curl;
+        }
+        $this->_curl = curl_init();
+        return $this->_curl;
+    }
 
     public function httpExec($action = "/", $params = array())
     {
-        $url = $this->getUrl().$action;
-        $ch = curl_init();
+        $ch = $this->getCurl();
         if($this->beforeRequest instanceof Closure) {
-            call_user_func($this->beforeRequest, $ch, $this);
+            $params = call_user_func($this->beforeRequest, $params, $this);
         }
+        $url = $this->getUrl().$action;
         if ($this->method == self::METHOD_POST) {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
@@ -111,16 +121,17 @@ class CurlHttp extends Component
         } else {
             !empty($params) && $url .= "?".http_build_query($params);
         }
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER , $this->getHeads());
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         $output = curl_exec($ch);
         if($this->afterRequest instanceof Closure) {
-            call_user_func($this->afterRequest, $ch, $output);
+            $data = call_user_func($this->afterRequest, $this, $output);
         }
         curl_close($ch);
-        return $output;
+        return $data;
     }
 }

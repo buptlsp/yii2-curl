@@ -40,14 +40,31 @@ Once the extension is installed, simply modify your application configuration as
 return [
     'baiduApi' => [
         'host' => 'www.baidu.com',
-        'beforeRequest' => function($ch, $req) {
-            //Yii::info("begin Bequest");
-            //you can add any aditional code before http request
+        'beforeRequest' => function($params, $curlHttp) {
+            //you may want calculate sign here, this is a example
+            $params['appkey'] = "12asadffd";
+            ksort($params);
+            $str = "";
+            foreach($params as $key => $val) {
+                $str .= $key."$val"
+            }
+            $params['sign'] = sha1($str);
+            return $params; 
         },
-        'afterRequest' => function($ch, $req, $response)
+        'afterRequest' => function($response, $curlHttp)
         {
-            //Yii::error("error");
-            // you can add any aditional code after request
+            // you may want process the request here, this is just a example
+            $code = curl_getinfo($this->_curl, CURLINFO_HTTP_CODE);
+            if(code == 200) {
+                $data = json_decode($response, true);
+                if(empty($data) || empty($data['code'])) {
+                    Yii::warning("error!", "curl.baidu");
+                }
+                Yii::info("ok!", "curl.baidu");
+                return $response
+            }
+            Yii::error("error", "curl.baidu");
+            return $response;
         }
         //'protocol' => 'http',
         //'port' => 80,
