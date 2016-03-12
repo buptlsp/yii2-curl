@@ -54,7 +54,7 @@ return [
         'afterRequest' => function($response, $curlHttp)
         {
             // you may want process the request here, this is just a example
-            $code = curl_getinfo($this->_curl, CURLINFO_HTTP_CODE);
+            $code = curl_getinfo($curlHttp->_curl, CURLINFO_HTTP_CODE);
             if(code == 200) {
                 $data = json_decode($response, true);
                 if(empty($data) || empty($data['code'])) {
