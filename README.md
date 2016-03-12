@@ -17,14 +17,14 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run  
 在命令行执行  
 ```
-php composer.phar require --prefer-dist lishipeng/yii2-curl "*"
+php composer.phar require --prefer-dist "lspbupt/yii2-curl" "*"
 ```
 
 or add   
 或加入
 
 ```
-"lishipeng/yii2-curl": "*"
+"lspbupt/yii2-curl": "*"
 ```
 
 to the require-dev section of your `composer.json` file.  

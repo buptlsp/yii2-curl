@@ -1,5 +1,5 @@
 <?php
-namespace buptlsp\yii2\curl;
+namespace lspbupt\yii2\curl;
 use Yii;
 use \yii\base\Component;
 use \yii\base\InvalidParamException;
