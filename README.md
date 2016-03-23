@@ -38,38 +38,41 @@ Once the extension is installed, simply modify your application configuration as
 
 ```php
 return [
-    'baiduApi' => [
-        'host' => 'www.baidu.com',
-        'beforeRequest' => function($params, $curlHttp) {
-            //you may want calculate sign here, this is a example
-            $params['appkey'] = "12asadffd";
-            ksort($params);
-            $str = "";
-            foreach($params as $key => $val) {
-                $str .= $key."$val";
-            }
-            $params['sign'] = sha1($str);
-            return $params; 
-        },
-        'afterRequest' => function($response, $curlHttp)
-        {
-            // you may want process the request here, this is just a example
-            $code = curl_getinfo($curlHttp->_curl, CURLINFO_HTTP_CODE);
-            if(code == 200) {
-                $data = json_decode($response, true);
-                if(empty($data) || empty($data['code'])) {
-                    Yii::warning("error!", "curl.baidu");
+    'component' => [
+        'baiduApi' => [
+            'class' => 'lspbupt\curl\CurlHttp'
+            'host' => 'www.baidu.com',
+            'beforeRequest' => function($params, $curlHttp) {
+                //you may want calculate sign here, this is a example
+                $params['appkey'] = "12asadffd";
+                ksort($params);
+                $str = "";
+                foreach($params as $key => $val) {
+                    $str .= $key."$val";
                 }
-                Yii::info("ok!", "curl.baidu");
+                $params['sign'] = sha1($str);
+                return $params; 
+            },
+            'afterRequest' => function($response, $curlHttp)
+            {
+                // you may want process the request here, this is just a example
+                $code = curl_getinfo($curlHttp->_curl, CURLINFO_HTTP_CODE);
+                if(code == 200) {
+                    $data = json_decode($response, true);
+                    if(empty($data) || empty($data['code'])) {
+                        Yii::warning("error!", "curl.baidu");
+                    }
+                    Yii::info("ok!", "curl.baidu");
+                    return $response;
+                }
+                Yii::error("error", "curl.baidu");
                 return $response;
             }
-            Yii::error("error", "curl.baidu");
-            return $response;
-        }
-        //'protocol' => 'http',
-        //'port' => 80,
+            //'protocol' => 'http',
+            //'port' => 80,
+        ],
+        // ...
     ],
-    // ...
 ];
 ```
 
