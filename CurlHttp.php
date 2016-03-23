@@ -130,9 +130,10 @@ class CurlHttp extends Component
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         $output = curl_exec($ch);
         if($this->afterRequest instanceof Closure) {
-            $data = call_user_func($this->afterRequest, $this, $output);
+            $data = call_user_func($this->afterRequest, $output, $this);
         }
         curl_close($ch);
+        $this->_curl = null;
         return $data;
     }
 }
