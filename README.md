@@ -61,7 +61,7 @@ return [
                     Yii::warning("error!", "curl.baidu");
                 }
                 Yii::info("ok!", "curl.baidu");
-                return $response
+                return $response;
             }
             Yii::error("error", "curl.baidu");
             return $response;
