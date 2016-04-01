@@ -57,7 +57,7 @@ class CurlHttp extends Component
         return $this->_action;
     }
     
-    public function setAction($action) 
+    private function setAction($action) 
     {
         $this->_action = $action;
     }
@@ -131,12 +131,13 @@ class CurlHttp extends Component
 
     public function httpExec($action = "/", $params = array())
     {
-        $ch = $this->getCurl();
         $this->setAction($action);
         if($this->beforeRequest instanceof Closure) {
             $params = call_user_func($this->beforeRequest, $params, $this);
             empty($params) && $params = []; 
         }
+        $ch = $this->getCurl();
+        $this->setAction($action);
         $url = $this->getUrl();
         if ($this->method == self::METHOD_POST) {
             curl_setopt($ch, CURLOPT_POST, 1);
