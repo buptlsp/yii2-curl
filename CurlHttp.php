@@ -21,14 +21,14 @@ class CurlHttp extends Component
         'User-Agent' => 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.22 (KHTML, like Gecko) Ubuntu Chromium/25.0.1',
         'Accept-Charset' => 'GBK,utf-8' ,
     );
-   
+
     private static $methodDesc = [
         self::METHOD_GET => "GET",
         self::METHOD_POST => "POST",
         self::METHOD_POSTJSON => "POST",
     ];
 
-    // closure 
+    // closure
     public $beforeRequest;
     public $afterRequest;
 
@@ -39,7 +39,7 @@ class CurlHttp extends Component
     {
         parent::init();
         if(empty($this->host)) {
-            throw new InvalidParamException("Please config host."); 
+            throw new InvalidParamException("Please config host.");
         }
     }
 
@@ -56,8 +56,8 @@ class CurlHttp extends Component
     {
         return $this->_action;
     }
-    
-    private function setAction($action) 
+
+    public function setAction($action)
     {
         $this->_action = $action;
     }
@@ -67,7 +67,7 @@ class CurlHttp extends Component
         $this->method = $method;
         return $this;
     }
-    
+
     public function setGet()
     {
         if(!empty($this->headers['Content-Type'])) {
@@ -75,7 +75,7 @@ class CurlHttp extends Component
         }
         return $this->setMethod(self::METHOD_GET);
     }
-   
+
     public function getMethod()
     {
         if(isset(self::$methodDesc[$this->method])) {
@@ -113,7 +113,7 @@ class CurlHttp extends Component
 
     private function getHeads()
     {
-        $heads = []; 
+        $heads = [];
         foreach($this->headers as $key => $val) {
             $heads[] = $key.":".$val;
         }
@@ -134,10 +134,9 @@ class CurlHttp extends Component
         $this->setAction($action);
         if($this->beforeRequest instanceof Closure) {
             $params = call_user_func($this->beforeRequest, $params, $this);
-            empty($params) && $params = []; 
+            empty($params) && $params = [];
         }
         $ch = $this->getCurl();
-        $this->setAction($action);
         $url = $this->getUrl();
         if ($this->method == self::METHOD_POST) {
             curl_setopt($ch, CURLOPT_POST, 1);
@@ -149,7 +148,7 @@ class CurlHttp extends Component
             if(!empty($params)) {
                 $temp = explode("?", $url);
                 if(count($temp) > 1) {
-                    $url = $temp[0]."?".$temp[1].'&'.http_build_query($params); 
+                    $url = $temp[0]."?".$temp[1].'&'.http_build_query($params);
                 } else {
                     $url = $url."?".http_build_query($params);
                 }
