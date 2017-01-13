@@ -15,6 +15,7 @@ class CurlHttp extends \lspbupt\curl\BaseCurlHttp
         if($this->beforeRequest instanceof Closure) {
             $params = call_user_func($this->beforeRequest, $params, $this);
             empty($params) && $params = [];
+            $this->setParams($params);
         }
         return parent::beforeCurl($params);
     }
