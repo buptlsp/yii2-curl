@@ -14,6 +14,8 @@ class BaseCurlHttp extends Component
 
     public $timeout = 10;
     public $connectTimeout = 5;
+    public $returnTransfer = 1;
+    public $followLocation = 1;
     public $protocol = "http";
     public $port = 80;
     public $host;
@@ -197,9 +199,9 @@ class BaseCurlHttp extends Component
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, $this->returnTransfer);
         curl_setopt($ch, CURLOPT_HTTPHEADER , $this->getHeads());
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->followLocation);
         $data = curl_exec($ch);
         if($this->isDebug()) {
             echo "\n请求结果:".$data."\n";
@@ -225,7 +227,7 @@ class BaseCurlHttp extends Component
             $action .= "?".$queryStr;
         }
         if($fragment) {
-            $action .= "?".$fragment;
+            $action .= "#".fragment;
         }
         $config['class'] = get_called_class();
         $obj = Yii::createObject($config);
