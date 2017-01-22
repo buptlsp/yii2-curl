@@ -27,7 +27,8 @@ class BaseCurlHttp extends Component
     public $action;
     public $params;
     private $debug = false;
-
+    //默认为非formData的模式,传文件时需要开启
+    private $isFormData = false;
     private static $methodDesc = [
         self::METHOD_GET => "GET",
         self::METHOD_POST => "POST",
@@ -145,6 +146,12 @@ class BaseCurlHttp extends Component
         $this->debug = $debug;
         return $this;
     }
+    
+    public function setFormData($isFormData = true)
+    {
+        $this->isFormData = $isFormData;
+        return $this;
+    }
 
     public function isDebug()
     {
@@ -179,7 +186,11 @@ class BaseCurlHttp extends Component
         $url = $this->getUrl();
         if ($this->method == self::METHOD_POST) {
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->getParams()));
+            if($this->isFormData) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $this->getParams());
+            }else {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->getParams()));
+            }
         } elseif ($this->method == self::METHOD_POSTJSON) {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->getParams()));
