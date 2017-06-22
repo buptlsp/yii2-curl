@@ -119,7 +119,11 @@ class BaseCurlHttp extends Component
 
     public function setHeader($key, $value)
     {
-        $this->headers[$key] = $value;
+        if ($value === null) {
+            unset($this->headers[$key]);
+        } else {
+            $this->headers[$key] = $value;
+        }
         return $this;
     }
 
