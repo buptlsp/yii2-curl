@@ -117,6 +117,16 @@ class BaseCurlHttp extends Component
         return $this;
     }
 
+    public function setHeaders($arr = [])
+    {
+        if (!ArrayHelper::isIndexed($arr)) {
+            foreach ($arr as $key => $value) {
+                $this->setHeader($key, $value);
+            }
+        }
+        return $this;
+    }
+
     public function setHeader($key, $value)
     {
         if ($value === null) {
@@ -175,7 +185,16 @@ class BaseCurlHttp extends Component
         return $data;
     }
 
-    public function httpExec($action = "/", $params = [])
+    /**
+     * @deprecated 推荐使用send方法
+     * @param string $action
+     * @param array $params
+     */
+    public function httpExec($action = "/", $params = []) {
+        return $this->send($action, $params);
+    }
+
+    public function send($action = "/", $params = [])
     {
         $this->setAction($action);
         $this->setParams($params);
@@ -217,14 +236,26 @@ class BaseCurlHttp extends Component
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, $this->returnTransfer);
         curl_setopt($ch, CURLOPT_HTTPHEADER , $this->getHeads());
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->followLocation);
+        $this->beforeCurlExec($ch);
         $data = curl_exec($ch);
+        $this->afterCurlExec($ch);
         if($this->isDebug()) {
             echo "\n请求结果:".$data."\n";
         }
         $data = $this->afterCurl($data);
         curl_close($ch);
-        $this->_curl = null;
+        $this->refreshCurl();
         return $data;
+    }
+
+    public function beforeCurlExec(&$ch) {
+    }
+
+    public function afterCurlExec(&$ch) {
+    }
+
+    public function refreshCurl() {
+        $this->_curl = null;
     }
 
     public static function requestByUrl($url, $params = [], $method=self::METHOD_GET)
