@@ -90,3 +90,11 @@ $data = Yii::$app->baiduApi
 
 as you see, once you configed a api, you can use it anywhere, have fun!  
 如上所见，一旦你配置好了对接的参数和处理，你就能在任何地方很方便的使用它了，祝您使用愉快！ 
+
+
+
+广告
+--------------
+
+我们是一群热爱技术，追求卓越的极客，我们乐于做一些对整个社会都有作用的事情，我们希望通过我们的努力来推动整个社会的创新，如果你也一样，欢迎加入我们（service@ethercap.com）！你也可以通过https://tech.ethercap.com 来了解更多！
+
