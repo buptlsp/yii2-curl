@@ -273,7 +273,7 @@ class BaseCurlHttp extends Component
             $action .= "?".$queryStr;
         }
         if($fragment) {
-            $action .= "#".fragment;
+            $action .= "#".$fragment;
         }
         $config['class'] = get_called_class();
         $obj = Yii::createObject($config);
