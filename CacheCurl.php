@@ -1,13 +1,14 @@
 <?php
+
 namespace lspbupt\curl;
-use Yii;
-use Closure;
+
 use yii\caching\Cache;
 use yii\di\Instance;
 
 /**
  * Class CacheCurl
  * 这个Curl主要设计用来缓存重复查询的curl请求结果
+ *
  * @package lspbupt\curl
  */
 class CacheCurl extends CurlHttp
@@ -35,23 +36,28 @@ class CacheCurl extends CurlHttp
 
     /**
      * @deprecated 推荐使用send方法
+     *
      * @param string $action
-     * @param array $params
+     * @param array  $params
      */
-    public function httpExec($action = "/", $params = []) {
+    public function httpExec($action = '/', $params = [])
+    {
         return $this->send($action, $params);
     }
 
-    public function send($action = "/", $params = []) {
+    public function send($action = '/', $params = [])
+    {
         if ($this->enableCache) {
             $this->cacheKey = $this->getKey($action, $params);
             $data = $this->cache->get($this->cacheKey);
-            if($this->isDebug()) {
+            if ($this->isDebug()) {
                 echo "\n注意cache开启中:" . "\n";
                 echo "\n请求结果:".$data."\n";
             }
-            if ($data) return json_decode($data, true);
-            if($this->isDebug()) {
+            if ($data) {
+                return json_decode($data, true);
+            }
+            if ($this->isDebug()) {
                 echo "\ncache没有命中 走正常请求流程:" . "\n";
             }
         }
@@ -67,16 +73,19 @@ class CacheCurl extends CurlHttp
         return parent::afterCurl($data);
     }
 
-    public function setEnableCache($value=true) {
+    public function setEnableCache($value = true)
+    {
         $this->enableCache = $value;
         return $this;
     }
 
     /**
      * 根据action params获取redis key
+     *
      * @return string
      */
-    private function getKey($action = "/", $params = []) {
+    private function getKey($action = '/', $params = [])
+    {
         if ($params) {
             if ($this->excludes) {
                 foreach ($this->excludes as $exclude) {
