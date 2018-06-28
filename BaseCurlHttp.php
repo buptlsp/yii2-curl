@@ -173,6 +173,12 @@ class BaseCurlHttp extends Component
         return $this->debug;
     }
 
+    public function setOpt($option, $value)
+    {
+        curl_setopt($this->getCurl(), $option, $value);
+        return $this;
+    }
+
     //请求之前的操作
     protected function beforeCurl($params)
     {
