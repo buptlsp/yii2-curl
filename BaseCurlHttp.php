@@ -36,6 +36,7 @@ class BaseCurlHttp extends Component
         self::METHOD_POST => 'POST',
         self::METHOD_POSTJSON => 'POST',
     ];
+    private $jsonEncodeOption = 0;
 
     private $_curl;
 
@@ -106,9 +107,10 @@ class BaseCurlHttp extends Component
         return $this->setMethod(self::METHOD_POST);
     }
 
-    public function setPostJson()
+    public function setPostJson($option = 0)
     {
         $this->setHeader('Content-Type', 'application/json;charset=utf-8');
+        $this->jsonEncodeOption = $option;
         return $this->setMethod(self::METHOD_POSTJSON);
     }
 
@@ -224,7 +226,7 @@ class BaseCurlHttp extends Component
             }
         } elseif ($this->method == self::METHOD_POSTJSON) {
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->getParams()));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->getParams(), $this->jsonEncodeOption));
         } else {
             if (!empty($params)) {
                 $temp = explode('?', $url);
