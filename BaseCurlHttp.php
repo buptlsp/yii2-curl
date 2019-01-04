@@ -40,14 +40,6 @@ class BaseCurlHttp extends Component
 
     private $_curl;
 
-    public function init()
-    {
-        parent::init();
-        if (empty($this->host)) {
-            throw new InvalidParamException('Please config host.');
-        }
-    }
-
     public function getUrl()
     {
         $url = $this->protocol.'://'.$this->host;
@@ -206,6 +198,9 @@ class BaseCurlHttp extends Component
 
     public function send($action = '/', $params = [])
     {
+	if (empty($this->host)) {
+            throw new InvalidParamException('Please config host.');
+        }
         $this->setAction($action);
         $this->setParams($params);
         if ($this->isDebug()) {
