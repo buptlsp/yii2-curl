@@ -5,7 +5,7 @@ namespace lspbupt\curl;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\base\Component;
-use yii\base\InvalidParamException;
+use yii\base\InvalidConfigException;
 
 /*encapsulate normal Http Request*/
 class BaseCurlHttp extends Component
@@ -199,7 +199,7 @@ class BaseCurlHttp extends Component
     public function send($action = '/', $params = [])
     {
 	if (empty($this->host)) {
-            throw new InvalidParamException('Please config host.');
+            throw new InvalidConfigException('Host must be configured before sending.');
         }
         $this->setAction($action);
         $this->setParams($params);
