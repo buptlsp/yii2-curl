@@ -35,6 +35,8 @@ class CacheCurl extends CurlHttp
     /* 当启用内部数组缓存时候, 用来存放缓存数据的数组 */
     private $_cacheArr = [];
 
+    protected $enableAudit = false;
+
     public function init()
     {
         parent::init();
@@ -143,5 +145,31 @@ class CacheCurl extends CurlHttp
         $arr = [$this->getUrl(), $action, md5(json_encode($params))];
         $key = $this->defaultPrefix . implode('_', $arr);
         return $key;
+    }
+
+    public function setEnableAudit()
+    {
+        $this->enableAudit = true;
+        return $this;
+    }
+
+    public function beforeCurlExec(&$ch)
+    {
+        if ($this->enableAudit) {
+            $this->trigger('auditBeforeCurlExec');
+        }
+    }
+
+    public function afterCurlExec(&$ch)
+    {
+        if ($this->enableAudit) {
+            $this->trigger('auditAfterCurlExec');
+        }
+    }
+
+    public function refreshCurl()
+    {
+        $this->enableAudit = false;
+        parent::refreshCurl();
     }
 }
