@@ -10,6 +10,8 @@ class CurlHttp extends \lspbupt\curl\BaseCurlHttp
     public $beforeRequest;
     public $afterRequest;
 
+    protected $enableAudit = false;
+
     //请求之前的操作
     protected function beforeCurl($params)
     {
@@ -28,5 +30,31 @@ class CurlHttp extends \lspbupt\curl\BaseCurlHttp
             $data = call_user_func($this->afterRequest, $data, $this);
         }
         return parent::afterCurl($data);
+    }
+
+    public function setEnableAudit()
+    {
+        $this->enableAudit = true;
+        return $this;
+    }
+
+    public function beforeCurlExec(&$ch)
+    {
+        if ($this->enableAudit) {
+            $this->trigger('auditBeforeCurlExec');
+        }
+    }
+
+    public function afterCurlExec(&$ch)
+    {
+        if ($this->enableAudit) {
+            $this->trigger('auditAfterCurlExec');
+        }
+    }
+
+    public function refreshCurl()
+    {
+        $this->enableAudit = false;
+        parent::refreshCurl();
     }
 }
