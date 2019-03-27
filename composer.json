@@ -1,10 +1,10 @@
 {
     "name": "lspbupt/yii2-curl",
     "description": "A curl encapsulation for yii2 framework",
-    "keywords": ["yii2", "extension", "curl"],
+    "keywords": ["yii2", "extension", "curl", "http-client"],
     "homepage": "https://github.com/buptlsp/yii2-curl",
     "type": "yii2-extension",
-    "license": "MIT",
+    "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "李仕鹏",

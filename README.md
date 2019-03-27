@@ -89,4 +89,35 @@ $data = Yii::$app->baiduApi
 ```
 
 as you see, once you configed a api, you can use it anywhere, have fun!  
-如上所见，一旦你配置好了对接的参数和处理，你就能在任何地方很方便的使用它了，祝您使用愉快！ 
+如上所见，一旦你配置好了对接的参数和处理，你就能在任何地方很方便的使用它了，祝您使用愉快！
+
+Usage
+-----
+1、Debug模式
+
+打开debug时，会将请求的详细信息均打印出来，方便调试。
+
+```php
+    $data = Yii::$app->baiduApi->setDebug()->httpExec("/apistore/xxx", []);
+```
+
+2、http头设置
+我们可以通过如下方法来设置我们想要的header，如下为发送postjson请求的示例。当然，我们也可以直接setPostJson()来设置为postjson请求。
+
+```php
+    $data = Yii::$app->baiduApi
+        ->setHeader('Content-Type', 'application/json;charset=utf-8')
+        ->httpExec("/apistore/xxx", []);
+```
+
+3、一些Tips
+
+- 正常的请求，都建议明确带上setGet()还是setPost()。
+- postjson请求时，我们可以加上setPostJson()即可。
+- 如果需要传文件，我们需要formData方式时，可以加上setFormData()来实现。
+- 正常如果beforeRequest和AfterRequest较长的话，不建议写配置中。建议通过类的继承来实现。
+
+广告
+--------------
+
+我们是一群热爱技术，追求卓越的极客，我们乐于做一些对整个社会都有作用的事情，我们希望通过我们的努力来推动整个社会的创新，如果你也一样，欢迎加入我们（service@ethercap.com）！你也可以通过https://tech.ethercap.com 来了解更多！
