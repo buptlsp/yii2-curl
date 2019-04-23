@@ -117,6 +117,32 @@ Usage
 - 如果需要传文件，我们需要formData方式时，可以加上setFormData()来实现。
 - 正常如果beforeRequest和AfterRequest较长的话，不建议写配置中。建议通过类的继承来实现。
 
+4、console模式
+正常情况下，我们经常需要在命令行发出一些命令，来跟baidu通信，调试api接口。因此，我们可以使用代码提供的工具来调试：
+
+首先，在`console/controllers/main-local.php`中加入如下的配置：
+
+```php
+return [
+    // 其它配置
+    'modules' => [
+        // ...
+        'curl' => ['class' => 'lspbupt\curl\module\Module'],
+        // ...
+    ],
+    // 其它配置
+];
+```
+
+其次，我们就可以在命令行使用它进行调试了：
+
+```bash
+./yii curl baiduApi "/apistore/iplookupservice/iplookup?ip=1.1.1.1"
+#更多帮助
+./yii curl -h
+```
+
+
 广告
 --------------
 

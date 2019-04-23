@@ -269,7 +269,7 @@ class BaseCurlHttp extends Component
         $this->_curl = null;
     }
 
-    public static function requestByUrl($url, $params = [], $method = self::METHOD_GET)
+    public static function getObjectByUrl($url, &$action=null, $method = self::METHOD_GET)
     {
         $data = parse_url($url);
         $config = [];
@@ -288,6 +288,13 @@ class BaseCurlHttp extends Component
         }
         $config['class'] = get_called_class();
         $obj = Yii::createObject($config);
+        return $obj; 
+    }
+
+    public static function requestByUrl($url, $params = [], $method = self::METHOD_GET)
+    {
+        $action = null;
+        $obj = self::getObjectByUrl($url, $action, $method);
         return $obj->httpExec($action, $params);
     }
 }
