@@ -5,7 +5,7 @@ namespace lspbupt\curl;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\base\Component;
-use yii\base\InvalidParamException;
+use yii\base\InvalidConfigException;
 
 /*encapsulate normal Http Request*/
 class BaseCurlHttp extends Component
@@ -36,16 +36,9 @@ class BaseCurlHttp extends Component
         self::METHOD_POST => 'POST',
         self::METHOD_POSTJSON => 'POST',
     ];
+    private $jsonEncodeOption = 0;
 
     private $_curl;
-
-    public function init()
-    {
-        parent::init();
-        if (empty($this->host)) {
-            throw new InvalidParamException('Please config host.');
-        }
-    }
 
     public function getUrl()
     {
@@ -106,9 +99,10 @@ class BaseCurlHttp extends Component
         return $this->setMethod(self::METHOD_POST);
     }
 
-    public function setPostJson()
+    public function setPostJson($option = 0)
     {
         $this->setHeader('Content-Type', 'application/json;charset=utf-8');
+        $this->jsonEncodeOption = $option;
         return $this->setMethod(self::METHOD_POSTJSON);
     }
 
@@ -204,6 +198,9 @@ class BaseCurlHttp extends Component
 
     public function send($action = '/', $params = [])
     {
+	if (empty($this->host)) {
+            throw new InvalidConfigException('Host must be configured before sending.');
+        }
         $this->setAction($action);
         $this->setParams($params);
         if ($this->isDebug()) {
@@ -224,7 +221,7 @@ class BaseCurlHttp extends Component
             }
         } elseif ($this->method == self::METHOD_POSTJSON) {
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->getParams()));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->getParams(), $this->jsonEncodeOption));
         } else {
             if (!empty($params)) {
                 $temp = explode('?', $url);
