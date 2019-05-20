@@ -3,6 +3,7 @@
 namespace lspbupt\curl\module\controllers;
 
 use lspbupt\curl\CurlHttp;
+use lspbupt\curl\module\Module;
 use yii\di\Instance;
 use yii\validators\UrlValidator;
 
@@ -73,10 +74,13 @@ class DefaultController extends \yii\console\Controller
 
         $obj = $this->getInstance($instance, $action);
         call_user_func([$obj, 'set'.$this->request]);
+        foreach (Module::$beforeActionBehaviors as $name => $value) {
+            Module::getInstance()->getBehavior($name)->run($value, $this);
+        }
         $ret = $obj->setDebug((bool) $this->verbose)
             ->setHeaders($this->header)
             ->setFormData($isFormData)
-            ->httpExec($action, $params);
+            ->send($action, $params);
         if (!$this->verbose) {
             if (is_string($ret)) {
                 echo $ret;
@@ -94,7 +98,7 @@ class DefaultController extends \yii\console\Controller
             'verbose',
             'header',
             'request',
-        ]);
+        ], array_keys(Module::$beforeActionBehaviors));
     }
 
     public function optionAliases()
@@ -140,5 +144,19 @@ class DefaultController extends \yii\console\Controller
             $obj = Instance::ensure($key);
         }
         return $obj;
+    }
+
+    public function __get($name)
+    {
+        return Module::$beforeActionBehaviors[$name] ?? parent::__get($name);
+    }
+
+    public function __set($name, $value)
+    {
+        if (isset(Module::$beforeActionBehaviors[$name])) {
+            Module::$beforeActionBehaviors[$name] = $value;
+            return;
+        }
+        parent::__set($name, $value);
     }
 }

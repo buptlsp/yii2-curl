@@ -2,6 +2,7 @@
 
 namespace lspbupt\curl\module;
 
+use lspbupt\curl\behaviors\BeforeActionBehavior;
 use yii\base\BootstrapInterface;
 
 /**
@@ -21,8 +22,21 @@ use yii\base\BootstrapInterface;
 class Module extends \yii\base\Module implements BootstrapInterface
 {
     public $controllerNamespace = 'lspbupt\curl\module\controllers';
+    /**
+     * @var array 存储了绑定的自定义参数key的默认值/当前值
+     * @see BeforeActionBehavior
+     */
+    public static $beforeActionBehaviors = [];
 
     public function bootstrap($app)
     {
+    }
+
+    public function attachBehavior($name, $behavior)
+    {
+        if ($behavior instanceof BeforeActionBehavior) {
+            self::$beforeActionBehaviors[$name] = $behavior->default();
+        }
+        return parent::attachBehavior($name, $behavior);
     }
 }
