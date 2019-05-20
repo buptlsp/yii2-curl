@@ -1,10 +1,8 @@
 <?php
+
 namespace lspbupt\curl\module;
 
-use Yii;
 use yii\base\BootstrapInterface;
-use yii\helpers\Json;
-use yii\web\ForbiddenHttpException;
 
 /**
  * To use Curl, include it as a module in the application configuration like the following:
@@ -23,7 +21,6 @@ use yii\web\ForbiddenHttpException;
 class Module extends \yii\base\Module implements BootstrapInterface
 {
     public $controllerNamespace = 'lspbupt\curl\module\controllers';
-
 
     public function bootstrap($app)
     {
