@@ -70,12 +70,12 @@ return [
             // ...
         ],
     ],   
-    // .... 
+    // ....
 ];
 ```
 
 After that, you can use it as follow:  
-在配置好之后，你可以这么访问它： 
+在配置好之后，你可以这么访问它：
 ```php
 // you can use this search beijin weather,  http://apistore.baidu.com/apiworks/servicedetail/112.html
 $data = Yii::$app->baiduApi
@@ -128,6 +128,7 @@ return [
     'modules' => [
         // ...
         'curl' => ['class' => 'lspbupt\curl\module\Module'],
+        'as foo' => ['class' => 'some_class_extends_BeforeActionBehavior']
         // ...
     ],
     // 其它配置
@@ -138,6 +139,9 @@ return [
 
 ```bash
 ./yii curl baiduApi "/apistore/iplookupservice/iplookup?ip=1.1.1.1"
+# 如果绑定一个自定义的前置处理器，此方法将能接受一个新的参数，同注入行为的名字。
+# 详见behaviors/BeforeActionBehavior
+./yii curl baiduApi "/apistore/iplookupservice/iplookup?ip=1.1.1.1" --foo bar
 #更多帮助
 ./yii curl -h
 ```
