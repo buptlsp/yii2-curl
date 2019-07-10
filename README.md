@@ -146,6 +146,8 @@ return [
 ./yii curl -h
 ```
 
+5、利用yii2内置http服务器进行简易调试
+只需要加入简单的参数`--serve xxxend/web`即可抛开nginx的限制，进行原地简易调试。
 
 广告
 --------------
