@@ -2,6 +2,7 @@
 
 namespace lspbupt\curl\module\controllers;
 
+use Yii;
 use lspbupt\curl\CurlHttp;
 use lspbupt\curl\module\Module;
 use yii\di\Instance;
@@ -26,6 +27,17 @@ class DefaultController extends \yii\console\Controller
      */
     public $request = '';
 
+    /**
+     * @var string 对应./yii serve --docroot，表示自行调试的代码目录所在，此时会覆盖原始的host而用本地的host
+     */
+    public $serve = '';
+
+    /**
+     * @var string 为beforeAction能获取到action参数存了一份
+     */
+    public $_action;
+    private $_server_pid;
+
     public static $allowMethods = ['get', 'post', 'postjson', 'formdata'];
 
     public $defaultScheme = 'http';
@@ -35,6 +47,7 @@ class DefaultController extends \yii\console\Controller
      */
     public function actionIndex($instance, $action = '')
     {
+        $this->_action = $action;
         $params = [];
         //规范化method
         $method = 'GET';
@@ -73,6 +86,7 @@ class DefaultController extends \yii\console\Controller
         $this->header = $this->parseHeader($this->header);
 
         $obj = $this->getInstance($instance, $action);
+        $this->startServe($obj);
         call_user_func([$obj, 'set'.$this->request]);
         foreach (Module::$beforeActionBehaviors as $name => $value) {
             Module::getInstance()->getBehavior($name)->run($value, $this);
@@ -81,11 +95,12 @@ class DefaultController extends \yii\console\Controller
             ->setHeaders($this->header)
             ->setFormData($isFormData)
             ->send($action, $params);
+        $this->terminateServe();
         if (!$this->verbose) {
             if (is_string($ret)) {
                 echo $ret;
             } else {
-                var_dump($ret);
+                echo json_encode($ret);
             }
         }
         return 0;
@@ -98,6 +113,7 @@ class DefaultController extends \yii\console\Controller
             'verbose',
             'header',
             'request',
+            'serve',
         ], array_keys(Module::$beforeActionBehaviors));
     }
 
@@ -108,6 +124,7 @@ class DefaultController extends \yii\console\Controller
             'v' => 'verbose',
             'H' => 'header',
             'X' => 'request',
+            's' => 'serve',
         ]);
     }
 
@@ -144,6 +161,48 @@ class DefaultController extends \yii\console\Controller
             $obj = Instance::ensure($key);
         }
         return $obj;
+    }
+
+    public function startServe(CurlHttp $obj): void
+    {
+        if (!$this->serve) {
+            return;
+        }
+        $port = mt_rand(13000, 15000);
+        $yii = dirname(Yii::getAlias('@console')).'/yii';
+        $pid = pcntl_fork();
+        if ($pid == -1) {
+            echo "fork failed.\n";
+            die;
+        } elseif ($pid) {
+            sleep(1);
+            $pidstatus = pcntl_waitpid($pid, $statsu, WNOHANG);
+            if ($pidstatus != 0) {
+                echo "server failed.\n";
+                die;
+            }
+            $this->_server_pid = $pid;
+            $obj->host = 'localhost';
+            $obj->port = $port;
+            $obj->protocol = 'http';
+        } else {
+            fclose(STDOUT);
+            fclose(STDERR);
+            pcntl_exec('/usr/bin/env', [
+                'php',
+                $yii, 'serve',
+                '--docroot', $this->serve,
+                '--port', $port,
+            ]);
+        }
+    }
+
+    public function terminateServe(): void
+    {
+        if (!$this->_server_pid) {
+            return;
+        }
+        posix_kill($this->_server_pid, SIGKILL);
     }
 
     public function __get($name)
