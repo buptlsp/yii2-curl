@@ -11,7 +11,7 @@ use yii\base\BootstrapInterface;
  * ~~~
  * return [
  *     'modules' => [
- *         'curl' => ['class' => 'yii\curl\Module'],
+ *         'curl' => ['class' => 'lspbupt\curl\Module'],
  *     ],
  * ]
  * ~~~

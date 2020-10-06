@@ -2,9 +2,9 @@
 
 namespace lspbupt\curl\module\controllers;
 
-use Yii;
 use lspbupt\curl\CurlHttp;
 use lspbupt\curl\module\Module;
+use Yii;
 use yii\di\Instance;
 use yii\validators\UrlValidator;
 
@@ -23,9 +23,9 @@ class DefaultController extends \yii\console\Controller
      */
     public $header = '';
     /**
-     * @var string 对应curl的-x, --request选项。本软件只支付get, post, postjson, formdata。如果不设置，系统会自行判断
+     * @var string 对应curl的-x, --req选项。本软件只支付get, post, postjson, formdata。如果不设置，系统会自行判断
      */
-    public $request = '';
+    public $req = '';
 
     /**
      * @var string 对应./yii serve --docroot，表示自行调试的代码目录所在，此时会覆盖原始的host而用本地的host
@@ -77,17 +77,17 @@ class DefaultController extends \yii\console\Controller
         }
 
         //规范化method
-        empty($this->request) && $this->request = $method;
-        $this->request = strtolower($this->request);
-        if (!in_array($this->request, self::$allowMethods)) {
-            $this->request = 'get';
+        empty($this->req) && $this->req = $method;
+        $this->req = strtolower($this->req);
+        if (!in_array($this->req, self::$allowMethods)) {
+            $this->req = 'get';
         }
         //规范化headers
         $this->header = $this->parseHeader($this->header);
 
         $obj = $this->getInstance($instance, $action);
         $this->startServe($obj);
-        call_user_func([$obj, 'set'.$this->request]);
+        call_user_func([$obj, 'set'.$this->req]);
         foreach (Module::$beforeActionBehaviors as $name => $value) {
             Module::getInstance()->getBehavior($name)->run($value, $this);
         }
@@ -112,7 +112,7 @@ class DefaultController extends \yii\console\Controller
             'dataRaw',
             'verbose',
             'header',
-            'request',
+            'req',
             'serve',
         ], array_keys(Module::$beforeActionBehaviors));
     }
@@ -123,7 +123,7 @@ class DefaultController extends \yii\console\Controller
             'd' => 'data-raw',
             'v' => 'verbose',
             'H' => 'header',
-            'X' => 'request',
+            'X' => 'req',
             's' => 'serve',
         ]);
     }
