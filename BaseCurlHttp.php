@@ -3,9 +3,9 @@
 namespace lspbupt\curl;
 
 use Yii;
-use yii\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii\helpers\ArrayHelper;
 
 /*encapsulate normal Http Request*/
 class BaseCurlHttp extends Component
@@ -22,10 +22,10 @@ class BaseCurlHttp extends Component
     public $port = 80;
     public $host;
     public $method = self::METHOD_GET;
-    public $headers = array(
+    public $headers = [
         'User-Agent' => 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.22 (KHTML, like Gecko) Ubuntu Chromium/25.0.1',
         'Accept-Charset' => 'GBK,utf-8',
-    );
+    ];
     public $action;
     public $params;
     private $debug = false;
@@ -196,9 +196,14 @@ class BaseCurlHttp extends Component
         return $this->send($action, $params);
     }
 
+    public function processPostData($data)
+    {
+        return json_encode($data, $this->jsonEncodeOption);
+    }
+
     public function send($action = '/', $params = [])
     {
-	if (empty($this->host)) {
+        if (empty($this->host)) {
             throw new InvalidConfigException('Host must be configured before sending.');
         }
         $this->setAction($action);
@@ -221,7 +226,7 @@ class BaseCurlHttp extends Component
             }
         } elseif ($this->method == self::METHOD_POSTJSON) {
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->getParams(), $this->jsonEncodeOption));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $this->processPostData($this->getParams()));
         } else {
             if (!empty($params)) {
                 $temp = explode('?', $url);
@@ -266,7 +271,7 @@ class BaseCurlHttp extends Component
         $this->_curl = null;
     }
 
-    public static function getObjectByUrl($url, &$action=null, $method = self::METHOD_GET)
+    public static function getObjectByUrl($url, &$action = null, $method = self::METHOD_GET)
     {
         $data = parse_url($url);
         $config = [];
@@ -285,7 +290,7 @@ class BaseCurlHttp extends Component
         }
         $config['class'] = get_called_class();
         $obj = Yii::createObject($config);
-        return $obj; 
+        return $obj;
     }
 
     public static function requestByUrl($url, $params = [], $method = self::METHOD_GET)
