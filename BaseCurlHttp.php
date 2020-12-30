@@ -12,7 +12,11 @@ class BaseCurlHttp extends Component
 {
     const METHOD_GET = 0;
     const METHOD_POST = 1;
+    /**
+     * @deprecated 兼容老版本的兼容性方法，建议分开指定HTTP method和数据格式化方式。
+     */
     const METHOD_POSTJSON = 2;
+    const METHOD_PUT = 3;
 
     public $timeout = 10;
     public $connectTimeout = 5;
@@ -31,10 +35,13 @@ class BaseCurlHttp extends Component
     private $debug = false;
     //默认为非formData的模式,传文件时需要开启
     private $isFormData = false;
+    //采用json的方式传递数据，postjson/putjson
+    private $isJsonData = false;
     private static $methodDesc = [
         self::METHOD_GET => 'GET',
         self::METHOD_POST => 'POST',
         self::METHOD_POSTJSON => 'POST',
+        self::METHOD_PUT => 'PUT',
     ];
     private $jsonEncodeOption = 0;
 
@@ -99,11 +106,20 @@ class BaseCurlHttp extends Component
         return $this->setMethod(self::METHOD_POST);
     }
 
+    public function setPut()
+    {
+        return $this->setMethod(self::METHOD_PUT);
+    }
+
+    /**
+     * @deprecated 建议使用 setPost()->setJsonData()
+     * @var int JSON options
+     * @return self
+     */
     public function setPostJson($option = 0)
     {
-        $this->setHeader('Content-Type', 'application/json;charset=utf-8');
-        $this->jsonEncodeOption = $option;
-        return $this->setMethod(self::METHOD_POSTJSON);
+        $this->setJsonData(true, $option);
+        return $this->setMethod(self::METHOD_POST);
     }
 
     public function setProtocol($protocol)
@@ -162,6 +178,17 @@ class BaseCurlHttp extends Component
         return $this;
     }
 
+    public function setJsonData($isJsonData = true, $option = 0)
+    {
+        if ($this->isJsonData = $isJsonData) {
+            $this->setHeader('Content-Type', 'application/json;charset=utf-8');
+        }
+        if ($option) {
+            $this->jsonEncodeOption = $option;
+        }
+        return $this;
+    }
+
     public function isDebug()
     {
         return $this->debug;
@@ -196,9 +223,22 @@ class BaseCurlHttp extends Component
         return $this->send($action, $params);
     }
 
+    /**
+     * 设置CURLOPT_POSTFIELDS的参数的序列化方式
+     * FormData：不序列化，保持数组
+     * JsonData: json_encode
+     * 默认：http_build_query
+     * @var array body部分的数据
+     * @return self
+     */
     public function processPostData($data)
     {
-        return json_encode($data, $this->jsonEncodeOption);
+        if ($this->isFormData) {
+            return $data;
+        } elseif ($this->isJsonData) {
+            return json_encode($data, $this->jsonEncodeOption);
+        }
+        return http_build_query($data);
     }
 
     public function send($action = '/', $params = [])
@@ -219,13 +259,15 @@ class BaseCurlHttp extends Component
         $url = $this->getUrl();
         if ($this->method == self::METHOD_POST) {
             curl_setopt($ch, CURLOPT_POST, 1);
-            if ($this->isFormData) {
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $this->getParams());
-            } else {
-                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->getParams()));
-            }
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $this->processPostData($this->getParams()));
         } elseif ($this->method == self::METHOD_POSTJSON) {
+            // 这个分支仅做兼容性处理。
+            // 除非使用->setMethod(CurlHttp::METHOD_POSTJSON)才会进入这个分支，历史代码极少这么用的
+            $this->setPostJson();
             curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $this->processPostData($this->getParams()));
+        } elseif ($this->method == self::METHOD_PUT) {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
             curl_setopt($ch, CURLOPT_POSTFIELDS, $this->processPostData($this->getParams()));
         } else {
             if (!empty($params)) {
