@@ -118,8 +118,8 @@ class BaseCurlHttp extends Component
      */
     public function setPostJson($option = 0)
     {
-        $this->setJsonData(true, $option);
-        return $this->setMethod(self::METHOD_POST);
+        $this->setMethod(self::METHOD_POST);
+        return $this->setJsonData(true, $option);
     }
 
     public function setProtocol($protocol)
