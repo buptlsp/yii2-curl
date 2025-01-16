@@ -294,8 +294,8 @@ class BaseCurlHttp extends Component
         if ($this->isDebug()) {
             echo "\n请求结果:".$data."\n";
         }
-        $data = $this->afterCurl($data);
         curl_close($ch);
+        $data = $this->afterCurl($data);
         $this->refreshCurl();
         return $data;
     }
