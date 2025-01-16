@@ -18,8 +18,8 @@ class BaseCurlHttp extends Component
     const METHOD_POSTJSON = 2;
     const METHOD_PUT = 3;
 
-    public $timeout = 10;
-    public $connectTimeout = 5;
+    public $timeout = 10; //单位s，支持小数
+    public $connectTimeout = 5; //单位s，支持小数
     public $returnTransfer = 1;
     public $followLocation = 1;
     public $protocol = 'http';
@@ -282,8 +282,8 @@ class BaseCurlHttp extends Component
         if ($this->isDebug()) {
             echo "\n开始请求:\nurl:${url}\n参数列表:".json_encode($this->getParams())."\n方法:".$this->getMethod()."\n";
         }
-        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
+        curl_setopt($ch, CURLOPT_TIMEOUT_MS, intval($this->timeout * 1000));
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, intval($this->connectTimeout * 1000));
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, $this->returnTransfer);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getHeads());
