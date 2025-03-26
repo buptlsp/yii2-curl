@@ -43,6 +43,7 @@ class CurlHttp extends \lspbupt\curl\BaseCurlHttp
         if ($this->enableAudit) {
             $this->trigger('auditBeforeCurlExec');
         }
+        return parent::beforeCurlExec($ch);
     }
 
     public function afterCurlExec(&$ch)
@@ -50,6 +51,7 @@ class CurlHttp extends \lspbupt\curl\BaseCurlHttp
         if ($this->enableAudit) {
             $this->trigger('auditAfterCurlExec');
         }
+        return parent::afterCurlExec($ch);
     }
 
     public function refreshCurl()

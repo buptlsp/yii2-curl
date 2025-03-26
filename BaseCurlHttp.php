@@ -5,7 +5,9 @@ namespace lspbupt\curl;
 use Yii;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii\base\ModelEvent;
 use yii\helpers\ArrayHelper;
+use yii\helpers\VarDumper;
 
 /*encapsulate normal Http Request*/
 class BaseCurlHttp extends Component
@@ -17,6 +19,11 @@ class BaseCurlHttp extends Component
      */
     const METHOD_POSTJSON = 2;
     const METHOD_PUT = 3;
+
+    const EVENT_BEFORE_CURL = 'beforeCurl';
+    const EVENT_AFTER_CURL = 'afterCurl';
+    const EVENT_BEFORE_CURL_EXEC = 'beforeCurlExec';
+    const EVENT_AFTER_CURL_EXEC = 'afterCurlExec';
 
     public $timeout = 10; //单位s，支持小数
     public $connectTimeout = 5; //单位s，支持小数
@@ -32,6 +39,7 @@ class BaseCurlHttp extends Component
     ];
     public $action;
     public $params;
+
     private $debug = false;
     //默认为非formData的模式,传文件时需要开启
     private $isFormData = false;
@@ -191,7 +199,15 @@ class BaseCurlHttp extends Component
 
     public function isDebug()
     {
-        return $this->debug;
+        return $this->debug ? true : false;
+    }
+
+    public function debug($info, $level = 'info')
+    {
+        if ($this->isDebug()) {
+            $info = $level.':'.VarDumper::dumpAsString($info);
+            echo $info."\n";
+        }
     }
 
     public function setOpt($option, $value)
@@ -203,12 +219,22 @@ class BaseCurlHttp extends Component
     //请求之前的操作
     protected function beforeCurl($params)
     {
-        return true;
+        $event = new ModelEvent();
+        $this->trigger(self::EVENT_BEFORE_CURL, $event);
+        return $event->isValid;
+    }
+
+    // 保持历史的兼容性
+    protected function afterCurlNew($data, $error)
+    {
+        return $this->afterCurl($data);
     }
 
     //请求之后的操作
     protected function afterCurl($data)
     {
+        $event = new ModelEvent();
+        $this->trigger(self::EVENT_AFTER_CURL, $event);
         return $data;
     }
 
@@ -248,9 +274,6 @@ class BaseCurlHttp extends Component
         }
         $this->setAction($action);
         $this->setParams($params);
-        if ($this->isDebug()) {
-            echo "\n开始请求之前:\nurl:".$this->getUrl()."\n参数列表:".json_encode($this->getParams())."\n方法:".$this->getMethod()."\n";
-        }
         $ret = $this->beforeCurl($params);
         if (!$ret) {
             return '';
@@ -260,15 +283,18 @@ class BaseCurlHttp extends Component
         if ($this->method == self::METHOD_POST) {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $this->processPostData($this->getParams()));
+            $this->debug($params, 'POST');
         } elseif ($this->method == self::METHOD_POSTJSON) {
             // 这个分支仅做兼容性处理。
             // 除非使用->setMethod(CurlHttp::METHOD_POSTJSON)才会进入这个分支，历史代码极少这么用的
             $this->setPostJson();
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $this->processPostData($this->getParams()));
+            $this->debug($params, 'POST');
         } elseif ($this->method == self::METHOD_PUT) {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
             curl_setopt($ch, CURLOPT_POSTFIELDS, $this->processPostData($this->getParams()));
+            $this->debug($params, 'PUT');
         } else {
             if (!empty($params)) {
                 $temp = explode('?', $url);
@@ -279,33 +305,43 @@ class BaseCurlHttp extends Component
                 }
             }
         }
-        if ($this->isDebug()) {
-            echo "\n开始请求:\nurl:${url}\n参数列表:".json_encode($this->getParams())."\n方法:".$this->getMethod()."\n";
-        }
         curl_setopt($ch, CURLOPT_TIMEOUT_MS, intval($this->timeout * 1000));
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, intval($this->connectTimeout * 1000));
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, $this->returnTransfer);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getHeads());
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->followLocation);
+        curl_setopt($ch, CURLOPT_VERBOSE, $this->isDebug());
         $this->beforeCurlExec($ch);
         $data = curl_exec($ch);
-        $this->afterCurlExec($ch);
-        if ($this->isDebug()) {
-            echo "\n请求结果:".$data."\n";
+
+        $err = [
+            'code' => 0,
+            'message' => '',
+        ];
+        if (empty($data)) {
+            $err['code'] = curl_errno($ch);
+            $err['message'] = curl_error($ch);
         }
+        $this->debug($data, 'RESPONSE');
+        $this->afterCurlExec($ch);
         curl_close($ch);
-        $data = $this->afterCurl($data);
+        $data = $this->afterCurlNew($data, $err);
         $this->refreshCurl();
         return $data;
     }
 
     public function beforeCurlExec(&$ch)
     {
+        $event = new ModelEvent();
+        $this->trigger(self::EVENT_BEFORE_CURL_EXEC, $event);
+        return $event->isValid;
     }
 
     public function afterCurlExec(&$ch)
     {
+        $event = new ModelEvent();
+        $this->trigger(self::EVENT_AFTER_CURL_EXEC, $event);
     }
 
     public function refreshCurl()
